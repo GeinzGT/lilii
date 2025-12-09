@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Hai, kamu ✨</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Poppins", system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fce1ef, #e3f0ff);
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 22px 22px 18px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .card.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fbe9f3;
+      color: #b35a86;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    h1 span {
+      color: #e46a9b;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 16px;
+    }
+
+    .line {
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, #ffadc8, #ffd19b);
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+
+    .message {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      white-space: pre-line;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 14px;
+    }
+
+    .from {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .from b {
+      color: #e46a9b;
+      font-weight: 600;
+    }
+
+    .btn {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      border: none;
+      background: #ffe6f0;
+      color: #b35a86;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn:hover {
+      background: #ffd6e6;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .hidden-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+      white-space: pre-line;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 16px 14px;
+        border-radius: 16px;
+      }
+      h1 { font-size: 20px; }
+    }
+
+    /* ==========================
+       LAYER “MAIN” / START SCREEN
+       ========================== */
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #ffe1f2, #f4e5ff 50%, #e3f0ff 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 10;
+      transition: opacity 0.4s ease;
+    }
+
+    .start-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .start-subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+
+    .start-heart {
+      font-size: 30px;
+      margin-bottom: 14px;
+      animation: pulse 1.3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 12px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #ff9cb6, #ffb894);
+      color: white;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    /* Floating hearts di background biar lebih hidup */
+    .floating-heart {
+      position: fixed;
+      font-size: 16px;
+      opacity: 0.5;
+      animation: floatUp 8s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LAYER MAIN / START -->
+  <div class="start-overlay" id="start-overlay">
+    <div class="start-heart">💗</div>
+    <h2 class="start-title">Untuk seseorang yang spesial</h2>
+    <p class="start-subtitle">
+      Ada pesan kecil yang aku simpan di halaman ini buat kamu.<br>
+      Tekan tombol di bawah kalau kamu siap baca, ya. 😊
+    </p>
+    <button class="start-btn" id="btn-start">
+      🌸 Mulai lihat pesannya
+    </button>
+  </div>
+
+  <!-- Floating hearts random -->
+  <span class="floating-heart" style="left:10%; animation-delay:0s;">💖</span>
+  <span class="floating-heart" style="left:30%; animation-delay:2s;">💕</span>
+  <span class="floating-heart" style="left:55%; animation-delay:4s;">💗</span>
+  <span class="floating-heart" style="left:80%; animation-delay:1s;">💘</span>
+
+  <!-- KARTU PESAN -->
+  <div class="card" id="card">
+    <div class="tag">buat kamu 😊</div>
+
+    <h1>Hai, <span id="nama-dia">[Nama Dia]</span> 👋</h1>
+
+    <p class="subtitle">
+      aku nggak jago kata-kata, jadi aku taruh aja di website kecil ini.
+    </p>
+
+    <div class="line"></div>
+
+    <p class="message" id="pesan-utama">
+      Makasih ya sudah mau kenal dan ngobrol sama aku pelan-pelan.
+
+      Kita masih baru, tapi aku seneng tiap kali bisa chat atau bercanda sama kamu.
+      Semoga ke depan kita bisa saling nyaman, tanpa harus buru-buru apa-apa. ✨
+    </p>
+
+    <p class="small-note">
+      kalau suatu saat kamu inget halaman ini, semoga kamu lagi senyum, bukan sedih. :)
+    </p>
+
+    <p class="from">
+      dari aku, <b id="nama-aku">[Namamu]</b> 🌷
+    </p>
+
+    <button class="btn" id="btn-kangen">
+      💌 klik kalau lagi kangen
+    </button>
+
+    <p class="hidden-text" id="teks-kangen">
+      kalau kamu lagi capek atau kepikiran banyak hal,
+      jangan lupa istirahat ya. kamu boleh cerita ke aku kapan aja,
+      aku bakal berusaha jadi tempat yang enak buat kamu cerita. 🙂
+    </p>
+  </div>
+
+  <script>
+    // ===========================
+    // BAGIAN YANG BISA KAMU EDIT
+    // ===========================
+    // GANTI NAMA DI SINI
+    const NAMA_DIA    = "Lilii";    // contoh: "Alya"
+    const NAMAMU      = "Rifky";    // contoh: "Ray"
+
+    const PESAN_UTAMA = `Makasih ya sudah mau kenal dan ngobrol sama aku pelan-pelan.
+
+Kita masih baru, tapi aku seneng tiap kali bisa chat atau bercanda sama kamu.
+Semoga ke depan kita bisa saling nyaman, tanpa harus buru-buru apa-apa. ✨`;
+
+    const TEKS_KANGEN = `kalau kamu lagi capek atau kepikiran banyak hal,
+jangan lupa istirahat ya. kamu boleh cerita ke aku kapan aja,
+aku bakal berusaha jadi tempat yang enak buat kamu cerita. 🙂`;
+
+    // ===========================
+    // JANGAN DIUBAH YANG DI BAWAH
+    // (kecuali kamu ngerti JS)
+    // ===========================
+    document.getElementById("nama-dia").textContent     = NAMA_DIA;
+    document.getElementById("nama-aku").textContent     = NAMAMU;
+    document.getElementById("pesan-utama").textContent  = PESAN_UTAMA;
+    document.getElementById("teks-kangen").textContent  = TEKS_KANGEN;
+
+    const btnKangen   = document.getElementById("btn-kangen");
+    const teksKangen  = document.getElementById("teks-kangen");
+    const startOverlay = document.getElementById("start-overlay");
+    const btnStart     = document.getElementById("btn-start");
+    const card         = document.getElementById("card");
+
+    let visible = false;
+
+    btnKangen.addEventListener("click", () => {
+      visible = !visible;
+      teksKangen.style.display = visible ? "block" : "none";
+      btnKangen.textContent = visible ? "🙈 sembunyiin lagi" : "💌 klik kalau lagi kangen";
+    });
+
+    // “Main”-nya: buka dari start screen dulu
+    btnStart.addEventListener("click", () => {
+      startOverlay.classList.add("hide");
+      // delay dikit biar transition enak
+      setTimeout(() => {
+        card.classList.add("show");
+      }, 100);
+    });
+
+    // Kalau dia reload dan overlay sudah transparan, pastikan card tetap tampil
+    window.addEventListener("load", () => {
+      // kalau mau langsung tanpa start screen, bisa langsung:
+      // startOverlay.classList.add("hide");
+      // card.classList.add("show");
+    });
+  </script>
+</body>
+</html>
