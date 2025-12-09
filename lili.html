@@ -17,6 +17,7 @@
       justify-content: center;
       background: linear-gradient(135deg, #fce1ef, #e3f0ff);
       padding: 20px;
+      overflow: hidden;
     }
 
     .card {
@@ -27,6 +28,16 @@
       max-width: 420px;
       width: 100%;
       text-align: center;
+      position: relative;
+      z-index: 1;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .card.show {
+      transform: scale(1);
+      opacity: 1;
     }
 
     .tag {
@@ -117,6 +128,7 @@
       margin-top: 10px;
       display: none;
       animation: fadeIn 0.3s ease;
+      white-space: pre-line;
     }
 
     @keyframes fadeIn {
@@ -131,13 +143,122 @@
       }
       h1 { font-size: 20px; }
     }
+
+    /* ==========================
+       LAYER “MAIN” / START SCREEN
+       ========================== */
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #ffe1f2, #f4e5ff 50%, #e3f0ff 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 10;
+      transition: opacity 0.4s ease;
+    }
+
+    .start-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .start-subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+
+    .start-heart {
+      font-size: 30px;
+      margin-bottom: 14px;
+      animation: pulse 1.3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 12px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #ff9cb6, #ffb894);
+      color: white;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    /* Floating hearts di background biar lebih hidup */
+    .floating-heart {
+      position: fixed;
+      font-size: 16px;
+      opacity: 0.5;
+      animation: floatUp 8s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh); opacity: 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+
+  <!-- LAYER MAIN / START -->
+  <div class="start-overlay" id="start-overlay">
+    <div class="start-heart">💗</div>
+    <h2 class="start-title">Untuk seseorang yang spesial</h2>
+    <p class="start-subtitle">
+      Ada pesan kecil yang aku simpan di halaman ini buat kamu.<br>
+      Tekan tombol di bawah kalau kamu siap baca, ya. 😊
+    </p>
+    <button class="start-btn" id="btn-start">
+      🌸 Mulai lihat pesannya
+    </button>
+  </div>
+
+  <!-- Floating hearts random -->
+  <span class="floating-heart" style="left:10%; animation-delay:0s;">💖</span>
+  <span class="floating-heart" style="left:30%; animation-delay:2s;">💕</span>
+  <span class="floating-heart" style="left:55%; animation-delay:4s;">💗</span>
+  <span class="floating-heart" style="left:80%; animation-delay:1s;">💘</span>
+
+  <!-- KARTU PESAN -->
+  <div class="card" id="card">
     <div class="tag">buat kamu 😊</div>
 
-    <!-- GANTI [Nama Dia] DI SINI -->
     <h1>Hai, <span id="nama-dia">[Nama Dia]</span> 👋</h1>
 
     <p class="subtitle">
@@ -146,7 +267,6 @@
 
     <div class="line"></div>
 
-    <!-- PESAN UTAMA (boleh kamu ganti bahasanya) -->
     <p class="message" id="pesan-utama">
       Makasih ya sudah mau kenal dan ngobrol sama aku pelan-pelan.
 
@@ -158,7 +278,6 @@
       kalau suatu saat kamu inget halaman ini, semoga kamu lagi senyum, bukan sedih. :)
     </p>
 
-    <!-- GANTI [Namamu] DI SINI -->
     <p class="from">
       dari aku, <b id="nama-aku">[Namamu]</b> 🌷
     </p>
@@ -178,8 +297,10 @@
     // ===========================
     // BAGIAN YANG BISA KAMU EDIT
     // ===========================
-    const NAMA_DIA   = "[LILII PWETYY]";   // contoh: "Alya"
-    const NAMAMU     = "[Rifky]";     // contoh: "Ray"
+    // GANTI NAMA DI SINI
+    const NAMA_DIA    = "Lilii";    // contoh: "Alya"
+    const NAMAMU      = "Rifky";    // contoh: "Ray"
+
     const PESAN_UTAMA = `Makasih ya sudah mau kenal dan ngobrol sama aku pelan-pelan.
 
 Kita masih baru, tapi aku seneng tiap kali bisa chat atau bercanda sama kamu.
@@ -193,19 +314,39 @@ aku bakal berusaha jadi tempat yang enak buat kamu cerita. 🙂`;
     // JANGAN DIUBAH YANG DI BAWAH
     // (kecuali kamu ngerti JS)
     // ===========================
-    document.getElementById("nama-dia").textContent   = NAMA_DIA;
-    document.getElementById("nama-aku").textContent   = NAMAMU;
-    document.getElementById("pesan-utama").textContent = PESAN_UTAMA;
-    document.getElementById("teks-kangen").textContent = TEKS_KANGEN;
+    document.getElementById("nama-dia").textContent     = NAMA_DIA;
+    document.getElementById("nama-aku").textContent     = NAMAMU;
+    document.getElementById("pesan-utama").textContent  = PESAN_UTAMA;
+    document.getElementById("teks-kangen").textContent  = TEKS_KANGEN;
 
-    const btnKangen = document.getElementById("btn-kangen");
-    const teksKangen = document.getElementById("teks-kangen");
+    const btnKangen   = document.getElementById("btn-kangen");
+    const teksKangen  = document.getElementById("teks-kangen");
+    const startOverlay = document.getElementById("start-overlay");
+    const btnStart     = document.getElementById("btn-start");
+    const card         = document.getElementById("card");
+
     let visible = false;
 
     btnKangen.addEventListener("click", () => {
       visible = !visible;
       teksKangen.style.display = visible ? "block" : "none";
       btnKangen.textContent = visible ? "🙈 sembunyiin lagi" : "💌 klik kalau lagi kangen";
+    });
+
+    // “Main”-nya: buka dari start screen dulu
+    btnStart.addEventListener("click", () => {
+      startOverlay.classList.add("hide");
+      // delay dikit biar transition enak
+      setTimeout(() => {
+        card.classList.add("show");
+      }, 100);
+    });
+
+    // Kalau dia reload dan overlay sudah transparan, pastikan card tetap tampil
+    window.addEventListener("load", () => {
+      // kalau mau langsung tanpa start screen, bisa langsung:
+      // startOverlay.classList.add("hide");
+      // card.classList.add("show");
     });
   </script>
 </body>
